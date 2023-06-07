@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD</title>
+
+    <!-- Jquery google cdn -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <!-- boostrap  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <!-- plugin cdn -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+
+
+</head>
+<style>
+</style>
+</head>
+
+<body id="bdy">
+
+    <div class="container text-center">
+        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal"
+            style="padding: 5px 50px;margin: 10px;">Add Data</button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" id="EditCloseBtn">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inputField">
+                            <label for="input">Name :</label> <input type="text" id="input"
+                                placeholder="enter your name"> <br>
+                            <label for="email">Email:</label> <input type="email" id="email"
+                                placeholder="enter your email"> <br>
+                            <label for="phone">Phone:</label> <input type="text" id="phone"
+                                placeholder="enter your phone">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="addBtn()"
+                            id="addBtnId">Add</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="msg" align='center' style="padding: 5px 0;color: white;">uihuihiuh</div>
+
+    <div class="containerTodo" style="padding: 12px;">
+
+        <div class="tbl">
+            <table id="myTable" class="display">
+                <thead>
+                    <tr>
+                        <th>Sno</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbody">
+
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let arr = []
+        let str = ''
+        let editId = null
+        let msg = document.querySelector('.msg')
+        let addBtnRef = document.querySelector('#addBtnId')
+        let btnTxt = addBtnRef.innerHTML
+
+        let modal = document.getElementById('myModal')
+        let body = document.getElementById('bdy')
+
+
+        localStorage.clear()
+
+        fetch('data.json').then((response) => response.json())
+            .then((json) => myFunction(json));
+
+        function myFunction(data) {
+            data.forEach((e, i) => {
+                let { name, email, phone } = e
+                arr.push({ 'name': name, 'email': email, 'phone': phone })
+                saveInfo()
+                str += `<tr><td>${i + 1}</td><td>${name}</td><td>${email}</td><td>${phone}</td><td><button onclick='edit(${i})'>edit</button><button onclick='deleet(${i})'>delete</button></td></tr>`
+            });
+            document.querySelector('#tbody').innerHTML = str
+
+        }
+
+
+        if (localStorage.getItem('users') != null) {
+            arr = JSON.parse(localStorage.getItem('users'))
+        }
+        function addBtn() {
+
+            modal.setAttribute("style", "display:none;");
+            modal.setAttribute("class", "modal fade");
+            body.setAttribute("class", "");
+
+            let name = document.querySelector('#input').value
+            let email = document.querySelector('#email').value
+            let phone = document.querySelector('#phone').value
+
+            if (name == '' || email == '' || phone == '') {
+                msg.style.display = 'block'
+                msg.innerHTML = 'some vacant field/s'
+                msg.style.background = 'red'
+                msgHide()
+                return
+            } else if (!email.includes('@')) {
+                msg.style.display = 'block'
+                msg.innerHTML = 'email @ missing'
+                msg.style.background = 'red'
+                msgHide()
+                return
+            }
+            else {
+                msg.innerHTML = ''
+                if (editId != null) {
+                    // edit
+                    arr.splice(editId, 1, { 'name': name, 'email': email, 'phone': phone })
+                    addBtnRef.innerHTML = btnTxt
+                    editId = null
+                    msg.style.display = 'block'
+                    msg.innerHTML = 'Editted succesfully'
+                    msg.style.background = 'green'
+                    msgHide()
+                } else {
+                    // insert
+                    arr.push({ 'name': name, 'email': email, 'phone': phone })
+                    msg.style.display = 'block'
+                    msg.innerHTML = 'added succesfully'
+                    msg.style.background = 'green'
+                    msgHide()
+                }
+                saveInfo()
+                document.querySelector('#input').value = ''
+                document.querySelector('#email').value = ''
+                document.querySelector('#phone').value = ''
+                display()
+            }
+        }
+
+        function saveInfo() {
+            localStorage.setItem('users', JSON.stringify(arr))
+        }
+        function display() {
+            let p = ''
+            arr.forEach((ele, i) => {
+                p += `<tr>
+                    <td>${i + 1}</td>
+                    <td>${ele.name}</td>
+                    <td>${ele.email}</td>
+                    <td>${ele.phone}</td>
+                    <td><button onclick="edit(${i})">edit</button><button onclick="deleet(${i})">delete</button></td>
+                </tr>`
+            })
+            document.querySelector('#tbody').innerHTML = p
+        }
+
+        function edit(e) {
+
+            modal.setAttribute("style", "display:block;");
+            modal.setAttribute("class", "modal fade in ");
+            body.setAttribute("class", "modal-open;");
+
+
+            document.querySelector('#input').value = arr[e].name
+            document.querySelector('#email').value = arr[e].email
+            document.querySelector('#phone').value = arr[e].phone
+            editId = e
+            addBtnRef.innerHTML = 'Edit'
+        }
+        function deleet(e) {
+            var res = confirm("Delete " + arr[e].name + "?");
+            if (res) {
+                arr.splice(e, 1)
+                saveInfo()
+                display()
+                msg.style.display = 'block'
+                msg.innerHTML = 'Deleted succesfully'
+                msg.style.background = 'green'
+                msgHide()
+            }
+
+        }
+
+        function show() {
+            document.querySelector('.box').style.display = "block";
+        }
+
+        function hide(e) {
+            document.querySelector('.box').style.display = "none";
+            // let ele=document.querySelector('.box')
+            // ele.classList.add('d-none')
+        }
+
+        function msgHide() {
+            setTimeout(function () {
+                $(".msg").fadeOut();
+            }, 3000);
+        }
+
+        setTimeout(() => {
+            $('#myTable').DataTable();
+        }, 100);
+
+
+        document.querySelector('.close').addEventListener('click', () => {
+            $("#myModal").modal('hide');
+            // modal.setAttribute("style", "display:none;");
+            //     modal.setAttribute("class", "modal fade");
+            //     body.setAttribute("class", "");
+        })
+
+        document.querySelector('#EditCloseBtn').addEventListener('click', () => {
+            document.querySelector('#input').value = ''
+            document.querySelector('#email').value = ''
+            document.querySelector('#phone').value = ''
+            modal.setAttribute("style", "display:none;");
+            modal.setAttribute("class", "modal fade");
+            body.setAttribute("class", "");
+            addBtnRef.innerHTML = btnTxt
+        })
+    </script>
+</body>
+
+</html>
