@@ -137,29 +137,8 @@
             let name = document.querySelector('#input').value
             let email = document.querySelector('#email').value
             let phone = document.querySelector('#phone').value
-            if (name == '' || email == '' || phone == '') {
-                // msg.style.display = 'block'
-                // msg.innerHTML = 'some vacant field/s'
-                // msg.style.background = 'red'
-                // msgHide()
-                return
-            }else if (/\d/.test(name)) {
-                // msg.style.display = 'block'
-                // msg.innerHTML = 'name should not be a number'
-                // msg.style.background = 'red'
-                // msgHide()
-                return
-            } else if (!email.includes('@')) {
-                // msg.style.display = 'block'
-                // msg.innerHTML = 'email @ missing'
-                // msg.style.background = 'red'
-                // msgHide()
-                return
-            } else if (phone.length!=10) {
-                // msg.style.display = 'block'
-                // msg.innerHTML = 'phone length should be 10'
-                // msg.style.background = 'red'
-                // msgHide()
+            if ((name == '' || email == '' || phone == '') || /\d/.test(name)|| !email.includes('@') || phone.length!=10) {
+                console.log(1111)
                 return
             }
             else {
