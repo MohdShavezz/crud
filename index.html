@@ -274,7 +274,8 @@
                 messages: {
                     name: {
                         required:"Please specify your name",
-                        minlength:"minlenght 2"
+                        minlength:"minlenght 2",
+                        digits:true
                     },
                     email: {
                         required: "We need your email address to contact you",
@@ -282,7 +283,8 @@
                     },
                     phone:{
                         required:"your contact number",
-                        minlength:"10 digit number"
+                        minlength:"10 digit number",
+                        digits: " Please only enter numbers!"
                     }
                 },
                 submitHandler: function (form) {
